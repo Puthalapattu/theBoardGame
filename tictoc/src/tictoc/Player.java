@@ -2,7 +2,7 @@ package tictoc;
 
 public class Player {
     int score;
-    String playerName;
+    String playerName = "";
     String defaultColor;
 
     public Player(int score, String playerName, String color) {

@@ -16,19 +16,14 @@ public class TicToc {
     private ArrayList<BoardBox[]> board = new ArrayList<>();
     private Map<Integer, int[]> boxMap = new HashMap<>();
 
-    private Player[] players = {
-            new Player(0, "", ""),
-            new Player(0, "", "")
-    };
-    private Map<String, Integer> playersMap = new HashMap<>();
+    public Player[] players = new Player[2];
 
-    private ArrayList<String> alreadyMatched = new ArrayList<>(); // store group indexes, already matched string
-                                                                  // indices, in
-    // list form
+    private ArrayList<String> alreadyMatched = new ArrayList<>();
+    // store already matched string indices, in list form
 
-    final String RESET = "\u001B[0m";
-    final String RED = "\u001B[31m";
-    final String GREEN = "\u001B[32m";
+    final static String RESET = "\u001B[0m";
+    final static String RED = "\u001B[31m";
+    final static String GREEN = "\u001B[32m";
 
     public TicToc(int rows, int columns) {
         this.rows = rows;
@@ -75,12 +70,12 @@ public class TicToc {
 
             for (int column = 0; column < this.columns; column++) {
                 boxes[column] = new BoardBox(Integer.toString(boxId), RESET);
-                boxMap.put(boxId, new int[] { row, column });
+                this.boxMap.put(boxId, new int[] { row, column });
 
                 boxId++;
             }
 
-            board.add(boxes);
+            this.board.add(boxes);
         }
 
         System.out.printf(
@@ -91,7 +86,7 @@ public class TicToc {
         String boxString = "|  0  |";
         int repeatCount = boxString.length() - 2;
 
-        for (BoardBox[] rowValues : board) {
+        for (BoardBox[] rowValues : this.board) {
             System.out.println(("+" + "-".repeat(repeatCount)).repeat(this.columns) + "+");
             for (BoardBox box : rowValues) {
                 boxString = (box.symbol.length() < 2 ? "|  " : "| ") + box.symColor + box.symbol + RESET
@@ -109,25 +104,28 @@ public class TicToc {
 
         this.displayBoard();
 
-        System.out.println(RED + "Red = " + players[0] + RESET);
-        System.out.println(GREEN + "Green = " + players[1] + RESET);
+        System.out.println(RED + "Red = " + this.players[0].playerName + RESET);
+        System.out.println(GREEN + "Green = " + this.players[1].playerName + RESET);
     }
 
-    public void registerPlayers(Scanner input) {
+    public void onboardPlayer(Scanner input) {
         System.out.println("\nPlayers details: Register\n");
         int id = 0;
         String userName;
         while (id < 2) {
-            System.out.printf("Name of Player-%d: ", id);
+            System.out.printf("Name of Player-%d: ", id + 1);
             try {
                 userName = input.nextLine();
-                if (!userName.equals("") && !(players[id == 1 ? 0 : id]).playerName.equals(userName)) {
-                    Player player = players[id];
+                if (!userName.equals("")) {
 
-                    player.playerName = userName;
-                    player.defaultColor = id > 0 ? GREEN : RED;
+                    if (id > 0 && players[id - 1].playerName.equals(userName)) {
+                        System.out.println("This player name is same as the last one, use a different one\n");
+                        continue;
+                    }
 
-                    playersMap.put(userName, player.score);
+                    String color = id > 0 ? GREEN : RED;
+
+                    players[id] = new Player(0, userName, color);
                     id++;
 
                 } else {
@@ -149,96 +147,84 @@ public class TicToc {
     public void startGameLoop(Scanner input) {
         System.out.println(RED + "\nEnter xox as symbol to EXIT game" + RESET);
 
-        Player currentPlayerObj = players[0];
-
         int filledBoxes = 0;
         boolean stop = false;
+        Player currentPlayerObj = this.players[0];
 
         while (!(stop)) {
+            System.out.printf("\nTotal boxes filled so far: %d\n", filledBoxes);
+            System.out.printf("Current player: %s\n", currentPlayerObj.playerName);
 
-            if (filledBoxes == (this.rows * this.columns)) {
-                System.out.println("\nPlayers scores: " + playersMap);
-                break;
-            }
-
-            System.out.println("Current player: " + currentPlayerObj.playerName);
-            System.out.print("\nEnter choosen Symbol: ");
-            String symbol = input.nextLine().toUpperCase();
-
-            if (symbol.equals("XOX")) {
-                System.out.println("\nPlayers scores");
-                this.displayPlayerScores();
-                break;
-            }
+            String symbol = this.getUserSelectedSymbol(input);
 
             if (symbol.equals("X") || symbol.equals("O")) {
+                int boxId = this.getUserSelectedBoxId(input);
 
-                if (lookAndCheckBox(input, symbol, currentPlayerObj)) {
+                if (boxId <= (this.rows * this.columns) && boxId > 0) {
+                    int[] indices = this.boxMap.get(boxId);
+                    int rowIndex = indices[0];
+                    int columnIndex = indices[1];
 
-                    currentPlayerObj = (currentPlayerObj == players[0]) ? players[1] : players[0];
+                    BoardBox box = this.board.get(rowIndex)[columnIndex];
 
-                    filledBoxes++;
+                    if (this.isBoxAvailable(box)) {
+                        this.updateBox(box, symbol, boxId, currentPlayerObj);
+                        this.displayBoard();
+
+                        int points = this.getCurrPlayerPoints(rowIndex, columnIndex, box.symbol);
+                        this.updatePlayerPoints(points, currentPlayerObj);
+
+                        currentPlayerObj = (currentPlayerObj == this.players[0]) ? this.players[1] : this.players[0];
+                        System.out.println("\nplayers score\n");
+                        this.displayPlayersScore();
+
+                        filledBoxes++;
+
+                    } else {
+                        System.out.println("\nBox already filled, select a different box id\n");
+
+                    }
+
+                } else {
+                    System.out.printf("\nInvalid box id, should be <=%d and >=1, Please try again\n\n",
+                            (this.rows * this.columns));
+
                 }
 
-                System.out.println("\nUpdated players scores\n");
-                this.displayPlayerScores();
-
             } else {
-                System.out.println("\nOnly symbols 'x' or 'o' are allowed, try again\n");
+                if (symbol != "XOX")
+                    System.out.println("\nOnly symbols 'x' or 'o' are allowed, try again\n");
+            }
+
+            if (this.checkForBreakCondition(filledBoxes, symbol)) {
+                stop = true;
             }
 
         }
     }
 
-    private boolean checkForBreakCon() {
-        return false;
+    // helper methods of GameLoop -----------------------------------
+    private boolean checkForBreakCondition(int boxes, String symbol) {
+
+        return (boxes == (this.rows * this.columns)) || symbol.equals("XOX");
+
     }
 
-    private void displayPlayerScores() {
-        for (Player player : this.players) {
-            System.out.printf("Player: %s, score: %d", player.playerName, player.score);
-        }
+    private String getUserSelectedSymbol(Scanner input) {
+        System.out.print("\nEnter choosen Symbol: ");
+        String pName = input.nextLine().toUpperCase();
+
+        return pName;
     }
 
-    private boolean lookAndCheckBox(Scanner input, String symbol, Player currentPlayer) {
-        String currPlayerName = currentPlayer.playerName;
+    private int getUserSelectedBoxId(Scanner input) {
+        int boxId = 0;
 
         System.out.print("Enter the choosen box ID: ");
         try {
-            // --------------------------
-            int boxId = input.nextInt();
-            input.nextLine(); // reads dead line
-            // --------------------------
+            boxId = Integer.parseInt(input.nextLine());
 
-            if (boxId <= (this.rows * this.columns) && boxId > 0) {
-
-                int[] indices = boxMap.get(boxId);
-
-                int rowIndex = indices[0];
-                int columnIndex = indices[1];
-                BoardBox box = board.get(rowIndex)[columnIndex];
-
-                if ((!box.symbol.equals("X") && !box.symbol.equals("O"))) {
-                    this.updateBox(box, symbol, boxId, currentPlayer);
-                    this.displayBoardWithInfo();
-
-                    int playerScore = this.lookForPoints(rowIndex, columnIndex, box.symbol);
-                    playersMap.put(currPlayerName, playersMap.get(currPlayerName) + playerScore);
-
-                    System.out.printf("\n%sTotal Points: %d %s\n", box.symColor, playerScore, RESET);
-
-                    return true;
-
-                } else {
-                    System.out.println("\nBox already filled, select a different box id\n");
-                }
-
-            } else {
-                System.out.println("\nInvalid box id, Please try again\n");
-
-            }
-
-        } catch (InputMismatchException e) {
+        } catch (NumberFormatException e) {
             System.out.println("\nNope... Box id is always a number, try again\n");
             input.nextLine();
 
@@ -247,7 +233,13 @@ public class TicToc {
             input.nextLine();
         }
 
-        return false;
+        return boxId;
+    }
+
+    private boolean isBoxAvailable(BoardBox box) {
+
+        return (!box.symbol.equals("X") && !box.symbol.equals("O"));
+
     }
 
     private void updateBox(BoardBox box, String symbol, int boxId, Player currentPlayer) {
@@ -260,30 +252,45 @@ public class TicToc {
 
     }
 
-    public int lookForPoints(int row, int column, String boxSymbol) {
+    private void updatePlayerPoints(int points, Player player) {
+        if (points > 0) {
+            player.score += points;
+        }
+
+    }
+
+    private void displayPlayersScore() {
+        for (Player player : this.players) {
+            System.out.printf("Player: %s, score: %d\n", player.playerName, player.score);
+        }
+    }
+
+    // helper methods end ---------------------------------------------------------
+
+    private int getCurrPlayerPoints(int row, int column, String boxSymbol) {
         int points = 0;
 
         if (boxSymbol.equals("X")) {
             // for horizontal
-            points += this.getValidStringPoints(row, column, 2, false, "XOX");
+            points += this.getValidPoints(row, column, 2, false, "XOX");
 
             // for vertical
-            points += this.getValidStringPoints(column, row, 2, true, "XOX");
+            points += this.getValidPoints(column, row, 2, true, "XOX");
 
         } else if (boxSymbol.equals("O")) {
 
             int tempColumn = Math.max(0, column - 1);
-            points += this.getValidStringPoints(row, tempColumn, 2, false, "XOX");
+            points += this.getValidPoints(row, tempColumn, 2, false, "XOX");
 
             int tempRow = Math.max(0, row - 1);
-            points += this.getValidStringPoints(column, tempRow, 2, true, "XOX");
+            points += this.getValidPoints(column, tempRow, 2, true, "XOX");
 
         }
 
         return points;
     }
 
-    public int getValidStringPoints(int row, int column, int beyond, boolean swap, String match) {
+    private int getValidPoints(int row, int column, int beyond, boolean swap, String match) {
         int validStringsCount = 0;
 
         int start = Math.max(0, column - beyond);
@@ -299,18 +306,18 @@ public class TicToc {
             if (index == column) {
                 if (swap) {
                     oneCycleStringIndexes.append(index).append(row);
-                    oneCycleString.append(board.get(index)[row].symbol);
+                    oneCycleString.append(this.board.get(index)[row].symbol);
 
                 } else {
                     oneCycleStringIndexes.append(row).append(index);
-                    oneCycleString.append(board.get(row)[index].symbol);
+                    oneCycleString.append(this.board.get(row)[index].symbol);
 
                 }
 
                 if (oneCycleString.toString().equals(match)) {
-                    if (!alreadyMatched.contains(oneCycleStringIndexes.toString())) {
+                    if (!this.alreadyMatched.contains(oneCycleStringIndexes.toString())) {
                         validStringsCount++;
-                        alreadyMatched.add(oneCycleStringIndexes.toString());
+                        this.alreadyMatched.add(oneCycleStringIndexes.toString());
 
                     }
                 }
@@ -327,11 +334,11 @@ public class TicToc {
             if (swap) {
                 // System.out.println("Swapping row and column");
                 oneCycleStringIndexes.append(index).append(row);
-                oneCycleString.append(board.get(index)[row].symbol);
+                oneCycleString.append(this.board.get(index)[row].symbol);
 
             } else {
                 oneCycleStringIndexes.append(row).append(index);
-                oneCycleString.append(board.get(row)[index].symbol);
+                oneCycleString.append(this.board.get(row)[index].symbol);
 
                 // System.err.println("Cycle string: " + oneCycleString);
                 // System.err.println("Cycle index string: " + oneCycleStringIndexes);
@@ -342,9 +349,9 @@ public class TicToc {
             String finalIndex = oneCycleStringIndexes.toString();
 
             if (finalString.equals(match)) {
-                if (!alreadyMatched.contains(finalIndex)) {
+                if (!this.alreadyMatched.contains(finalIndex)) {
                     validStringsCount++;
-                    alreadyMatched.add(finalIndex);
+                    this.alreadyMatched.add(finalIndex);
 
                 }
             }
@@ -371,7 +378,7 @@ public class TicToc {
         xox.buildBoard();
         xox.displayBoard();
         xox.knowRules(userIn);
-        xox.registerPlayers(userIn);
+        xox.onboardPlayer(userIn);
         xox.startGameLoop(userIn);
 
         userIn.close();
