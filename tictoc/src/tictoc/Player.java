@@ -1,9 +1,9 @@
 package tictoc;
 
 public class Player {
-    int score;
-    String name = "";
-    String defaultColor;
+    private int score;
+    private String name = "";
+    private String defaultColor;
 
     public Player(int score, String playerName, String color) {
         this.score = score;
@@ -11,4 +11,23 @@ public class Player {
         this.defaultColor = color;
     }
 
+    public int getScore() {
+        return this.score;
+
+    }
+
+    public String getName() {
+        return this.name;
+
+    }
+
+    public String getColor() {
+        return this.defaultColor;
+
+    }
+
+    public void setScore(int newScore) {
+        this.score = newScore;
+
+    }
 }

@@ -89,7 +89,10 @@ public class TicToc {
         for (BoardBox[] rowValues : this.board) {
             System.out.println(("+" + "-".repeat(repeatCount)).repeat(this.columns) + "+");
             for (BoardBox box : rowValues) {
-                boxString = (box.symbol.length() < 2 ? "|  " : "| ") + box.symColor + box.symbol + RESET
+                String boxSymbol = box.getSymbol();
+                String symbolColor = box.getSymbolColor();
+
+                boxString = (boxSymbol.length() < 2 ? "|  " : "| ") + symbolColor + boxSymbol + RESET
                         + "  ";
 
                 System.out.print(boxString);
@@ -104,8 +107,8 @@ public class TicToc {
 
         this.displayBoard();
 
-        System.out.println(RED + "Red = " + this.players[0].name + RESET);
-        System.out.println(GREEN + "Green = " + this.players[1].name + RESET);
+        System.out.println(RED + "Red = " + this.players[0].getName() + RESET);
+        System.out.println(GREEN + "Green = " + this.players[1].getName() + RESET);
     }
 
     public void onboardPlayer(Scanner input) {
@@ -118,7 +121,7 @@ public class TicToc {
                 userName = input.nextLine().toUpperCase();
                 if (!userName.equals("")) {
 
-                    if (id > 0 && players[id - 1].name.equals(userName)) {
+                    if (id > 0 && players[id - 1].getName().equals(userName)) {
                         System.out.println("This player name is same as the last one, use a different NAME\n");
                         continue;
                     }
@@ -148,117 +151,106 @@ public class TicToc {
         System.out.println(RED + "\nEnter xox as symbol to EXIT game" + RESET);
 
         int filledBoxes = 0;
-        boolean stop = false;
-        Player currentPlayerObj = this.players[0];
+        boolean gameOver = false;
+        Player currPlayerObj = this.players[0];
 
-        while (!(stop)) {
+        while (!(gameOver)) {
             System.out.printf("\nTotal boxes filled so far: %d\n", filledBoxes);
-            System.out.printf("Current player: %s\n", currentPlayerObj.name);
+            System.out.printf("Current player: %s\n", currPlayerObj.getName());
 
-            String symbol = this.getUserSelectedSymbol(input);
+            String symbol = this.readSymbol(input);
 
-            if (symbol.length() == 1 && "XO".contains(symbol)) {
-                int boxId = this.getUserSelectedBoxId(input);
+            if (symbol.equals("XOX")) {
+                System.out.println("\nEXIT confirmed\n");
+                break;
+            }
 
-                if (boxId <= (this.rows * this.columns) && boxId > 0) {
-                    int[] indices = this.boxMap.get(boxId);
-                    int rowIndex = indices[0];
-                    int columnIndex = indices[1];
+            int boxId = this.readBoxId(input);
 
-                    BoardBox box = this.board.get(rowIndex)[columnIndex];
+            int[] indices = this.boxMap.get(boxId);
+            int rowIndex = indices[0];
+            int columnIndex = indices[1];
 
-                    if (this.isBoxAvailable(box)) {
-                        this.updateBox(box, symbol, boxId, currentPlayerObj);
-                        this.displayBoard();
+            BoardBox box = this.board.get(rowIndex)[columnIndex];
 
-                        int points = this.getCurrPlayerPoints(rowIndex, columnIndex, box.symbol);
-                        this.updatePlayerPoints(points, currentPlayerObj);
+            if (box.isBoxEmpty()) {
+                this.updateBox(box, symbol, boxId, currPlayerObj);
+                this.displayBoard();
 
-                        currentPlayerObj = (currentPlayerObj == this.players[0]) ? this.players[1] : this.players[0];
+                int points = this.getCurrPlayerPoints(rowIndex, columnIndex, box.getSymbol());
+                this.updatePlayerPoints(points, currPlayerObj);
 
-                        this.displayPlayersScore();
+                currPlayerObj = (currPlayerObj == this.players[0]) ? this.players[1] : this.players[0];
 
-                        filledBoxes++;
+                this.displayPlayersScore();
 
-                    } else {
-                        System.out.println("\nBox already filled, select a different box id\n");
-
-                    }
-
-                } else {
-                    System.out.printf("\nInvalid box id, should be <=%d and >=1, Please try again\n\n",
-                            (this.rows * this.columns));
-
-                }
+                filledBoxes++;
 
             } else {
-                if (!symbol.equals("XOX")) {
-                    System.out.println("\nOnly symbols 'x' or 'o' are allowed, try again\n");
+                System.out.println("\nBox already filled, select a different box id\n");
 
-                } else {
-                    System.out.println("\nExit confirmed\n");
-
-                }
             }
 
-            if (this.checkForBreakCondition(filledBoxes, symbol)) {
-                stop = true;
+            if (filledBoxes == (this.rows * this.columns)) {
+                gameOver = true;
             }
-
         }
+
     }
 
     // helper methods of GameLoop -----------------------------------
-    private boolean checkForBreakCondition(int boxes, String symbol) {
 
-        return (boxes == (this.rows * this.columns)) || symbol.equals("XOX");
+    private String readSymbol(Scanner input) {
+        while (true) {
+            System.out.print("\nEnter choosen Symbol: ");
+            String symbol = input.nextLine().toUpperCase();
 
-    }
+            if ("XO".contains(symbol) || "XOX".equals(symbol)) {
+                return symbol;
 
-    private String getUserSelectedSymbol(Scanner input) {
-        System.out.print("\nEnter choosen Symbol: ");
-        String pName = input.nextLine().toUpperCase();
+            } else {
+                System.out.println("\nOnly symbols 'x', 'o' or 'xox'(exit) are allowed, try again\n");
 
-        return pName;
-    }
-
-    private int getUserSelectedBoxId(Scanner input) {
-        int boxId = 0;
-
-        System.out.print("Enter the choosen box ID: ");
-        try {
-            boxId = Integer.parseInt(input.nextLine());
-
-        } catch (NumberFormatException e) {
-            System.out.println("\nNope... Box id is always a number, try again\n");
-
-        } catch (Exception e) {
-            System.out.println("Error occured: " + e);
-
+            }
         }
-
-        return boxId;
     }
 
-    private boolean isBoxAvailable(BoardBox box) {
+    private int readBoxId(Scanner input) {
+        int id;
+        while (true) {
+            System.out.print("Enter the choosen box ID: ");
+            try {
+                id = Integer.parseInt(input.nextLine());
 
-        return (!box.symbol.equals("X") && !box.symbol.equals("O"));
+                if (id <= (this.rows * this.columns) && id > 0)
+                    return id;
+
+                System.out.printf("\nInvalid box id, should be <=%d and >=1, Please try again\n\n",
+                        (this.rows * this.columns));
+
+            } catch (NumberFormatException e) {
+                System.out.println("\nNope... Box id is always a number, try again\n");
+
+            } catch (Exception e) {
+                System.out.println("Error occured: " + e);
+
+            }
+        }
 
     }
 
     private void updateBox(BoardBox box, String symbol, int boxId, Player currentPlayer) {
 
-        System.out.printf("\n%s choosed box-%d to place %s\n\n", currentPlayer.name,
+        System.out.printf("\n%s choosed box-%d to place %s\n\n", currentPlayer.getName(),
                 boxId, symbol);
 
-        box.symbol = symbol;
-        box.symColor = currentPlayer.defaultColor;
+        box.setBoxSymbol(symbol, currentPlayer.getColor());
 
     }
 
     private void updatePlayerPoints(int points, Player player) {
         if (points > 0) {
-            player.score += points;
+            player.setScore(points);
         }
 
     }
@@ -266,13 +258,14 @@ public class TicToc {
     private void displayPlayersScore() {
         System.out.println("\nplayers score:\n");
         for (Player player : this.players) {
-            String color = player.defaultColor;
+            String color = player.getColor();
 
             System.out.printf(
                     "Player: %s%s%s, score: %s%d%s\n",
-                    color, player.name, RESET,
-                    color, player.score, RESET);
+                    color, player.getName(), RESET,
+                    color, player.getScore(), RESET);
         }
+
     }
 
     // helper methods end ---------------------------------------------------------
@@ -309,18 +302,16 @@ public class TicToc {
         StringBuilder oneCycleStringIndexes = new StringBuilder();
         StringBuilder oneCycleString = new StringBuilder();
 
-        // System.out.printf(" start, end : [%d, %d]\n", start, end);
-
         for (int index = start; index <= end; index++) {
 
             if (index == column) {
                 if (swap) {
                     oneCycleStringIndexes.append(index).append(row);
-                    oneCycleString.append(this.board.get(index)[row].symbol);
+                    oneCycleString.append(this.board.get(index)[row].getSymbol());
 
                 } else {
                     oneCycleStringIndexes.append(row).append(index);
-                    oneCycleString.append(this.board.get(row)[index].symbol);
+                    oneCycleString.append(this.board.get(row)[index].getSymbol());
 
                 }
 
@@ -332,26 +323,18 @@ public class TicToc {
                     }
                 }
 
-                // System.err.println("Cycle string before reset: " + oneCycleString);
-                // System.err.println("Cycle index string before reset: " +
-                // oneCycleStringIndexes);
-
                 oneCycleStringIndexes.setLength(0); // Reset
                 oneCycleString.setLength(0); // Reset
 
             }
 
             if (swap) {
-                // System.out.println("Swapping row and column");
                 oneCycleStringIndexes.append(index).append(row);
-                oneCycleString.append(this.board.get(index)[row].symbol);
+                oneCycleString.append(this.board.get(index)[row].getSymbol());
 
             } else {
                 oneCycleStringIndexes.append(row).append(index);
-                oneCycleString.append(this.board.get(row)[index].symbol);
-
-                // System.err.println("Cycle string: " + oneCycleString);
-                // System.err.println("Cycle index string: " + oneCycleStringIndexes);
+                oneCycleString.append(this.board.get(row)[index].getSymbol());
 
             }
 
@@ -372,7 +355,7 @@ public class TicToc {
 
     public void declareTheWinner() {
 
-        Player wonPlayer = this.getWonPlayer();
+        var wonPlayer = this.getWonPlayer();
 
         if (wonPlayer == null) {
             System.out.println(GREEN + "\nThis game is a TIE, Play a new game again\n" + RESET);
@@ -380,24 +363,24 @@ public class TicToc {
             return;
         }
 
-        Player lostPlayer = this.getLostPlayer(wonPlayer);
+        var lostPlayer = this.getLostPlayer(wonPlayer);
 
         System.out.printf(
-                wonPlayer.defaultColor + "\n\n%s WON the game against %s by %d points\n\n" + RESET,
-                wonPlayer.name,
-                lostPlayer.name,
-                (wonPlayer.score - lostPlayer.score));
+                wonPlayer.getColor() + "\n\n%s WON the game against %s by %d points\n\n" + RESET,
+                wonPlayer.getName(),
+                lostPlayer.getName(),
+                (wonPlayer.getScore() - lostPlayer.getScore()));
 
     }
 
     // Helper methods of DecalreTheWinner method ------------------
     private Player getWonPlayer() {
 
-        if (players[0].score == players[1].score) {
+        if (players[0].getScore() == players[1].getScore()) {
             return null;
         }
 
-        return (players[0].score > players[1].score) ? players[0] : players[1];
+        return (players[0].getScore() > players[1].getScore()) ? players[0] : players[1];
     }
 
     private Player getLostPlayer(Player wonPlayer) {
