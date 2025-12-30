@@ -240,56 +240,65 @@ public class TicToc {
 
     private int getCurrPlayerPoints(int row, int column, String boxSymbol) {
         int points = 0;
+        int beyond;
 
         if (boxSymbol.equals("X")) {
             // for horizontal
-            points += this.getValidPoints(row, column, 2, false, "XOX");
+            beyond = 2;
+            points += this.getValidPoints(row, column, beyond, false, "XOX");
 
             // for vertical
-            points += this.getValidPoints(column, row, 2, true, "XOX");
+            points += this.getValidPoints(column, row, beyond, true, "XOX");
 
         } else if (boxSymbol.equals("O")) {
+            // Horizontal
+            beyond = 1;
+            points += this.getValidPoints(row, column, beyond, false, "XOX");
 
-            points += this.getValidPoints(row, column, 1, false, "XOX");
-
-            points += this.getValidPoints(column, row, 1, true, "XOX");
+            // Vertical
+            points += this.getValidPoints(column, row, beyond, true, "XOX");
 
         }
 
         return points;
     }
 
+    private int[] getValidRange(int columnValue, int beyond) {
+        int start = Math.max(0, columnValue - beyond);
+        int end = Math.min(columnValue + beyond, (this.columns - 1));
+
+        return new int[] { start, end };
+    }
+
     private int getValidPoints(int row, int column, int beyond, boolean swap, String match) {
         int validPoints = 0;
 
-        int start = Math.max(0, column - beyond);
-        int end = Math.min(column + beyond, (this.columns - 1));
-        System.out.printf("Start: %d, end: %d\n", start, end);
-
-        // int validStringLen = 0;
+        int[] range = this.getValidRange(column, beyond);
         StringBuilder validString = new StringBuilder("");
 
-        for (int index = start; index <= end; index++) {
+        System.out.printf("Start: %d, end: %d\n", range[0], range[1]);
+
+        for (int index = range[0]; index <= range[1]; index++) {
             BoardBox box = swap ? this.board.getBoardBox(index, row) : this.board.getBoardBox(row, index);
 
             if ("XO".contains(box.getSymbol())) {
 
                 validString.append(box.getSymbol());
+
+            } else {
+                validString.setLength(0);
             }
 
             System.out.println("Valid string: " + validString.toString());
-            // validStringLen++;
 
             if (validString.length() == match.length()) {
                 if (validString.toString().equals(match)) {
                     System.out.println("found matching xox");
-                    validPoints++;
 
+                    validPoints++;
                     validString.setLength(1);
-                    // validStringLen = 1;
 
                 }
-
             }
 
         }
@@ -343,8 +352,11 @@ public class TicToc {
             argRows = Integer.parseInt(args[0]);
             argColumns = Integer.parseInt(args[1]);
 
+            System.out.println("Done, rows & columns are set");
+
         } else {
             System.out.println(TicToc.RESET);
+            System.out.println("Cannot find any additional arguments(rows, columns)");
             System.out.println("\nDefaulting the board size to 4 x 4.\n");
         }
 
