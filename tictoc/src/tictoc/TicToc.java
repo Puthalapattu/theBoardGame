@@ -80,42 +80,53 @@ public class TicToc {
     }
 
     public void onboardPlayer(Scanner input) {
-        System.out.println("\nRegister player details:\n");
+
+        System.out.println("\nRegister players:\n");
         int id = 0;
-        String userName;
+        String playerName;
+
         while (id < 2) {
             System.out.printf("Name of Player-%d: ", id + 1);
-            try {
-                userName = input.nextLine().toUpperCase();
-                if (!userName.equals("")) {
+            playerName = this.getPlayerName(input);
+            if (!playerName.equals("")) {
 
-                    if (id > 0 && players[0].getName().equals(userName)) {
-                        System.out.println("This player name is same as the last one, use a different NAME\n");
-                        continue;
-                    }
-
-                    String color = id > 0 ? GREEN : RED;
-
-                    players[id] = new Player(0, userName, color);
-                    id++;
-
-                } else {
-                    System.out.println("Invalid user name\n");
-
+                if (id > 0 && players[0].getName().equals(playerName)) {
+                    System.out.println("This player name is same as the last one, use a different NAME\n");
+                    continue;
                 }
 
-            } catch (InputMismatchException e) {
-                System.out.println("\nPlayer name can only be a String, try again\n");
+                String color = id > 0 ? GREEN : RED;
 
-            } catch (Exception e) {
-                System.out.println("Currently handling players registration");
-                System.out.println("Opps.. error occured: " + e.getLocalizedMessage());
+                players[id] = new Player(0, playerName, color);
+                id++;
+
+            } else {
+                System.out.println("Invalid user name\n");
+
             }
+
         }
 
         System.out.println("\nDisplaying the Board one more time for you\n");
         this.displayBoardWithInfo();
+    }
 
+    private String getPlayerName(Scanner input) {
+        String playerName = "";
+
+        try {
+            playerName = input.nextLine().toUpperCase();
+
+        } catch (InputMismatchException e) {
+            System.out.println("\nPlayer name can only be a String, try again\n");
+
+        } catch (Exception e) {
+            System.out.println("Currently handling players registration");
+            System.out.println("and.. error occured: " + e.getLocalizedMessage());
+
+        }
+
+        return playerName;
     }
 
     public void startGameLoop(Scanner input) {
@@ -282,21 +293,20 @@ public class TicToc {
             BoardBox box = swap ? this.board.getBoardBox(index, row) : this.board.getBoardBox(row, index);
 
             if ("XO".contains(box.getSymbol())) {
-
                 validString.append(box.getSymbol());
 
             } else {
                 validString.setLength(0);
-            }
 
-            System.out.println("Valid string: " + validString.toString());
+            }
 
             if (validString.length() == match.length()) {
                 if (validString.toString().equals(match)) {
-                    System.out.println("found matching xox");
-
                     validPoints++;
                     validString.setLength(1);
+
+                } else {
+                    validString.deleteCharAt(0);
 
                 }
             }
@@ -348,32 +358,30 @@ public class TicToc {
         int argRows = 4;
         int argColumns = 4;
 
-        if (args.length == 2) {
+        if (args.length == 2 && (args[0] == args[1])) {
             argRows = Integer.parseInt(args[0]);
             argColumns = Integer.parseInt(args[1]);
 
-            System.out.println("Done, rows & columns are set");
+            System.out.println("Done, rows & columns are set\n");
 
         } else {
             System.out.println(TicToc.RESET);
-            System.out.println("Cannot find any additional arguments(rows, columns)");
+            System.out.println("additional arguments: cannot find any(rows, columns : rows = columns) or Invalid");
             System.out.println("\nDefaulting the board size to 4 x 4.\n");
         }
 
         Scanner userIn = new Scanner(System.in);
-        TicToc xox = new TicToc(argRows, argColumns);
+        TicToc gameObj = new TicToc(argRows, argColumns);
 
-        xox.board.buildBoard();
-        xox.board.displayBoard();
+        gameObj.board.buildBoard();
+        gameObj.board.displayBoard();
 
-        xox.knowRules(userIn);
-        xox.onboardPlayer(userIn);
-        xox.startGameLoop(userIn);
-
-        xox.declareTheWinner();
+        gameObj.knowRules(userIn);
+        gameObj.onboardPlayer(userIn);
+        gameObj.startGameLoop(userIn);
+        gameObj.declareTheWinner();
 
         userIn.close();
-
     }
 }
 

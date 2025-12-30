@@ -21,6 +21,7 @@ public class Board {
     }
 
     public void buildBoard() {
+
         System.out.println("Trying to build the board");
         int boxId = 1;
         for (int row = 0; row < this.rows; row++) {
@@ -66,4 +67,15 @@ public class Board {
 
         return box;
     }
+
+    public void clearBoard() {
+
+        if (this.board.size() > 1) {
+            this.board.clear();
+
+            System.out.println("Board has been cleared!\n");
+        }
+
+    }
+
 }
