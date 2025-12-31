@@ -287,7 +287,7 @@ public class TicToc {
         int[] range = this.getValidRange(column, beyond);
         StringBuilder validString = new StringBuilder("");
 
-        System.out.printf("Start: %d, end: %d\n", range[0], range[1]);
+        // System.out.printf("Start: %d, end: %d\n", range[0], range[1]);
 
         for (int index = range[0]; index <= range[1]; index++) {
             BoardBox box = swap ? this.board.getBoardBox(index, row) : this.board.getBoardBox(row, index);
