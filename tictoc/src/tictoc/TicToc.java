@@ -3,12 +3,16 @@ package tictoc;
 // Import -----------
 // import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.InputMismatchException;
+import java.io.IOException;
 
 import tictoc.helpers.GameLoopHelper;
 import tictoc.helpers.PlayerScoreHelper;
+import tictoc.helpers.PlayerRegHelper;
 import tictoc.utils.Board;
 import tictoc.utils.BoardBox;
 import tictoc.utils.Player;
@@ -39,21 +43,23 @@ public class TicToc {
 
     }
 
-    public void GameRules() {
-        System.out.println("\nRules -------------------------------------------------------------\n");
-        System.out.println("- This is a two player game,");
-        System.out.println("- This game consists of two symbols: 'x' & 'o'.");
-        System.out.println("- On every turn each player will choose any one of the sym -");
-        System.out.println("- to place it inside any one of the boxes on the board.");
-        System.out.println("- Example: x <Enter>, in next line: 12 <Enter>");
-        System.out.println("Where:");
-        System.out.println("\t- 'x' : The choosen symbol.");
-        System.out.println("\t- '12' : The choosen boxID.\n");
-        System.out.println("- For every xox match, appropriate player will get a point");
-        System.out.println("- Only rows, columns will be considerd for points, no diagonals.\n");
-        System.out.printf("Note: The box's id starts from 1, and ends at %d\n", (this.rows * this.columns));
-        System.out.println("\n- Finally player with more points or score will win the game!");
-        System.out.println("\nRules end ----------------------------------------------------------\n");
+    private final void GameRules() {
+        System.out.println("\n");
+        try (BufferedReader br = new BufferedReader(new FileReader("./src/tictoc/rules.txt"))) {
+            String line = br.readLine();
+            while (line != null) {
+                System.out.println(line);
+
+                line = br.readLine();
+            }
+
+        } catch (IOException e) {
+            System.out.println("ERROR: File not found\n");
+
+        } finally {
+            System.out.printf("\nNote: The box's id starts from 1, and ends at %d\n\n", (this.rows * this.columns));
+
+        }
     }
 
     public void knowRules(Scanner input) {
@@ -78,9 +84,11 @@ public class TicToc {
         int id = 0;
         String playerName;
 
+        PlayerRegHelper playerRegHelper = new PlayerRegHelper();
+
         while (id < 2) {
             System.out.printf("Name of Player-%d: ", id + 1);
-            playerName = this.readPlayerName(input);
+            playerName = playerRegHelper.readPlayerName(input);
             if (!playerName.equals("")) {
 
                 if (id > 0 && players[0].getName().equals(playerName)) {
@@ -103,33 +111,8 @@ public class TicToc {
         System.out.println("\nDisplaying the Board one more time for you\n");
 
         this.board.displayBoard();
-        this.displayInitialPlayersInfo();
+        playerRegHelper.displayInitialPlayersInfo(this.players, RESET, new String[] { RED, GREEN });
 
-    }
-
-    private final void displayInitialPlayersInfo() {
-
-        System.out.printf("%sRed%s = %s\n", RED, RESET, this.players[0].getName());
-        System.out.printf("%sGreen%s = %s\n\n", GREEN, RESET, this.players[1].getName());
-
-    }
-
-    private String readPlayerName(Scanner input) {
-        String playerName = "";
-
-        try {
-            playerName = input.nextLine().toUpperCase();
-
-        } catch (InputMismatchException e) {
-            System.out.println("\nPlayer name can only be a String, try again\n");
-
-        } catch (Exception e) {
-            System.out.println("Currently handling players registration");
-            System.out.println("and.. error occured: " + e.getLocalizedMessage());
-
-        }
-
-        return playerName;
     }
 
     public void startGameLoop(Scanner input) {
