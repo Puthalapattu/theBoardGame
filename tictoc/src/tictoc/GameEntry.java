@@ -1,30 +1,24 @@
 package tictoc;
 
 // Import -----------
-// import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.InputMismatchException;
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.InputMismatchException;
 import java.io.IOException;
 
-import tictoc.helpers.GameLoopHelper;
-import tictoc.helpers.PlayerScoreHelper;
-import tictoc.helpers.PlayerRegHelper;
-import tictoc.utils.Board;
-import tictoc.utils.BoardBox;
-import tictoc.utils.Player;
-// ------------------
+import tictoc.helpers.*;
+import tictoc.utils.*;
 
-public class TicToc {
+// -------------------
+public class GameEntry {
     private int rows;
     private int columns;
 
     private Board board;
     public Map<Integer, int[]> boxMap = new HashMap<>();
-
     private Player[] players = new Player[2];
 
     // private ArrayList<String> alreadyMatched = new ArrayList<>();
@@ -35,7 +29,7 @@ public class TicToc {
     final static String GREEN = "\u001B[32m";
     final static String YELLOW = "";
 
-    public TicToc(int rows, int columns) {
+    public GameEntry(int rows, int columns) {
         this.rows = rows;
         this.columns = columns;
 
@@ -54,7 +48,8 @@ public class TicToc {
             }
 
         } catch (IOException e) {
-            System.out.println("ERROR: File not found\n");
+            System.out.println("ERROR: " + e.getMessage());
+            System.out.println("You have to be on 'tictoc' folder to get rules\n");
 
         } finally {
             System.out.printf("\nNote: The box's id starts from 1, and ends at %d\n\n", (this.rows * this.columns));
@@ -211,24 +206,37 @@ public class TicToc {
 
     // helper methods end ----------------------------------------
 
+    private static boolean isValidArgs(String[] args) {
+        System.out.println(RESET);
+
+        if (args.length == 2 && (args[0].equals(args[1])) && (Integer.parseInt(args[0]) <= 8)) {
+            System.out.println("Done, rows & columns are set\n");
+            return true;
+
+        }
+
+        System.out.println(GameEntry.RESET);
+        System.out.println(
+                "additional args: cannot find any(java -cp ... <rows columns> : rows = columns) or may be Invalid");
+        System.out.println("\nDefaulting the board size to 4 x 4.\n");
+
+        return false;
+    }
+
     public static void main(String[] args) {
         int argRows = 4;
         int argColumns = 4;
 
-        if (args.length == 2 && (args[0].equals(args[1]))) {
+        System.out
+                .println(GameEntry.RED + "\nMake sure you're calling from the right folder: tictoc" + GameEntry.RESET);
+        if (GameEntry.isValidArgs(args)) {
             argRows = Integer.parseInt(args[0]);
             argColumns = Integer.parseInt(args[1]);
 
-            System.out.println("Done, rows & columns are set\n");
-
-        } else {
-            System.out.println(TicToc.RESET);
-            System.out.println("additional arguments: cannot find any(rows, columns : rows = columns) or Invalid");
-            System.out.println("\nDefaulting the board size to 4 x 4.\n");
         }
 
         Scanner userIn = new Scanner(System.in);
-        TicToc gameObj = new TicToc(argRows, argColumns);
+        GameEntry gameObj = new GameEntry(argRows, argColumns);
 
         gameObj.board.buildBoard();
         gameObj.board.displayBoard();

@@ -3,17 +3,17 @@ package tictoc.utils;
 // Imports ---------------
 import java.util.ArrayList;
 
-import tictoc.TicToc;
+import tictoc.GameEntry;
 // -----------------------
 
 public class Board {
-    TicToc gameObj;
 
     private ArrayList<BoardBox[]> board = new ArrayList<>();
     private int rows;
     private int columns;
+    GameEntry gameObj;
 
-    public Board(int rowSize, int columnSize, TicToc gameObj) {
+    public Board(int rowSize, int columnSize, GameEntry gameObj) {
         this.rows = rowSize;
         this.columns = columnSize;
         this.gameObj = gameObj;
@@ -28,7 +28,7 @@ public class Board {
             BoardBox[] boxes = new BoardBox[this.columns];
 
             for (int column = 0; column < this.columns; column++) {
-                boxes[column] = new BoardBox(Integer.toString(boxId), TicToc.RESET);
+                boxes[column] = new BoardBox(Integer.toString(boxId), GameEntry.RESET);
                 gameObj.boxMap.put(boxId, new int[] { row, column });
 
                 boxId++;
@@ -51,7 +51,7 @@ public class Board {
                 String boxSymbol = box.getSymbol();
                 String symbolColor = box.getSymbolColor();
 
-                boxString = (boxSymbol.length() < 2 ? "|  " : "| ") + symbolColor + boxSymbol + TicToc.RESET
+                boxString = (boxSymbol.length() < 2 ? "|  " : "| ") + symbolColor + boxSymbol + GameEntry.RESET
                         + "  ";
 
                 System.out.print(boxString);

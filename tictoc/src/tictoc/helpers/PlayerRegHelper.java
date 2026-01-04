@@ -14,7 +14,7 @@ public class PlayerRegHelper {
 
     }
 
-    public String readPlayerName(Scanner input) {
+    public final String readPlayerName(Scanner input) {
         String playerName = "";
 
         try {

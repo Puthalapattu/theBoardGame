@@ -13,7 +13,7 @@ public class PlayerScoreHelper {
 
     }
 
-    public int getCurrPlayerPoints(int row, int column, String boxSymbol) {
+    public final int getCurrPlayerPoints(int row, int column, String boxSymbol) {
         int points = 0;
         int beyond;
 

@@ -3,29 +3,33 @@ package tictoc.helpers;
 // Imports ------------------
 import java.util.Scanner;
 
-import tictoc.TicToc;
+import tictoc.GameEntry;
 import tictoc.utils.BoardBox;
 import tictoc.utils.Player;
 // -------------------------
 
 public class GameLoopHelper {
 
-    public String readSymbol(Scanner input) {
+    public final String readSymbol(Scanner input) {
         while (true) {
             System.out.print("\nEnter the chosen symbol: ");
             String symbol = input.nextLine().toUpperCase();
 
-            if ("XO".contains(symbol) || "XOX".equals(symbol)) {
-                return symbol;
+            if (!symbol.isBlank()) {
+                if ("O".equals(symbol) || "X".equals(symbol) || "XOX".equals(symbol)) {
+                    return symbol;
 
-            } else {
-                System.out.println("\nOnly symbols 'x', 'o' or 'xox'(exit) are allowed, try again\n");
+                }
 
             }
+
+            System.out.println("\nOnly symbols 'x', 'o' or 'xox'(exit) are allowed, try again\n");
+
         }
+
     }
 
-    public int readBoxId(Scanner input, int rowSize, int columnSize) {
+    public final int readBoxId(Scanner input, int rowSize, int columnSize) {
         int id;
         while (true) {
             System.out.print("Enter the choosen box ID: ");
@@ -49,7 +53,7 @@ public class GameLoopHelper {
 
     }
 
-    public void updateBoxSymbol(BoardBox box, String symbol, int boxId, Player playerObj) {
+    public final void updateBoxSymbol(BoardBox box, String symbol, int boxId, Player playerObj) {
 
         System.out.printf("\n%s chose box-%d to place %s\n\n", playerObj.getName(),
                 boxId, symbol);
@@ -58,20 +62,20 @@ public class GameLoopHelper {
 
     }
 
-    public void displayPlayersScore(Player[] players) {
+    public final void displayPlayersScore(Player[] players) {
         System.out.println("\nplayers score:\n");
         for (Player player : players) {
             String color = player.getColor();
 
             System.out.printf(
                     "Player: %s%s%s, score: %s%d%s\n",
-                    color, player.getName(), TicToc.RESET,
-                    color, player.getScore(), TicToc.RESET);
+                    color, player.getName(), GameEntry.RESET,
+                    color, player.getScore(), GameEntry.RESET);
         }
 
     }
 
-    public void updatePlayerScore(Player playerObj, int newScore) {
+    public final void updatePlayerScore(Player playerObj, int newScore) {
 
         playerObj.updateScore(newScore);
 
