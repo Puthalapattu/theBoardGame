@@ -21,13 +21,10 @@ public class GameEntry {
     public Map<Integer, int[]> boxMap = new HashMap<>();
     private Player[] players = new Player[2];
 
-    // private ArrayList<String> alreadyMatched = new ArrayList<>();
-    // store already matched string indices, in list form
-
     final static public String RESET = "\u001B[0m";
-    final static String RED = "\u001B[31m";
-    final static String GREEN = "\u001B[32m";
-    final static String YELLOW = "";
+    final static public String RED = "\u001B[31m";
+    final static public String GREEN = "\u001B[32m";
+    final static public String YELLOW = "";
 
     public GameEntry(int rows, int columns) {
         this.rows = rows;
@@ -106,7 +103,7 @@ public class GameEntry {
         System.out.println("\nDisplaying the Board one more time for you\n");
 
         this.board.displayBoard();
-        playerRegHelper.displayInitialPlayersInfo(this.players, RESET, new String[] { RED, GREEN });
+        playerRegHelper.displayInitialPlayersInfo(this.players, new String[] { RESET, RED, GREEN });
 
     }
 
@@ -179,12 +176,14 @@ public class GameEntry {
         }
 
         var lostPlayer = this.getLostPlayer(wonPlayer);
+        var score = (wonPlayer.getScore() - lostPlayer.getScore());
 
         System.out.printf(
-                wonPlayer.getColor() + "\n%s WON the game against %s by %d points\n\n" + RESET,
+                wonPlayer.getColor() + "\n%s WON the game against %s by %d point%s\n\n" + RESET,
                 wonPlayer.getName(),
                 lostPlayer.getName(),
-                (wonPlayer.getScore() - lostPlayer.getScore()));
+                score,
+                score > 1 ? "'s" : "");
 
     }
 
@@ -217,8 +216,9 @@ public class GameEntry {
 
         System.out.println(GameEntry.RESET);
         System.out.println(
-                "additional args: cannot find any(java -cp ... <rows columns> : rows = columns) or may be Invalid");
-        System.out.println("\nDefaulting the board size to 4 x 4.\n");
+                "additional args: cannot find any(java -cp ... <rows columns>) or may be Invalid");
+        System.out.println("rows = columns & rows, columns <= 8\n");
+        System.out.println("\nDefaulting the board size to 4 x 4.\n\n");
 
         return false;
     }
@@ -227,8 +227,9 @@ public class GameEntry {
         int argRows = 4;
         int argColumns = 4;
 
-        System.out
-                .println(GameEntry.RED + "\nMake sure you're calling from the right folder: tictoc" + GameEntry.RESET);
+        System.out.println(
+                GameEntry.RED + "\nMake sure you're calling from the right folder: tictoc" + GameEntry.RESET);
+
         if (GameEntry.isValidArgs(args)) {
             argRows = Integer.parseInt(args[0]);
             argColumns = Integer.parseInt(args[1]);
