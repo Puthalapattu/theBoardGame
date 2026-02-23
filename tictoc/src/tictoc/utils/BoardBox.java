@@ -13,7 +13,7 @@ public class BoardBox {
     }
 
     public boolean isBoxEmpty() {
-        return (!this.symbol.equals("X") || !this.symbol.equals("O"));
+        return (!this.symbol.equals("X") && !this.symbol.equals("O"));
 
     }
 

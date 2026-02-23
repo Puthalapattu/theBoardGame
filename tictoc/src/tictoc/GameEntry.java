@@ -55,7 +55,7 @@ public class GameEntry {
     }
 
     public void knowRules(Scanner input) {
-        System.out.print("\nDo you know the rules of this game?(n-for rules) : ");
+        System.out.print("\nDo you know the rules of this game?(n: for rules) : ");
         try {
             String choice = input.nextLine().toLowerCase();
             if (choice.equals("n")) {
@@ -143,7 +143,8 @@ public class GameEntry {
 
                 int totalScore = scoreHelper.getCurrPlayerPoints(rowIndex, columnIndex, box.getSymbol());
                 if (totalScore > 0) {
-                    System.out.printf("\n+%d for %s\n", totalScore, currPlayerObj.getName());
+                    System.out.printf("\n%s+%d for %s%s\n", currPlayerObj.getColor(), totalScore,
+                            currPlayerObj.getName(), RESET);
 
                     gameLoopHelper.updatePlayerScore(currPlayerObj, totalScore);
                     gameLoopHelper.displayPlayersScore(this.players);
@@ -183,7 +184,7 @@ public class GameEntry {
                 wonPlayer.getName(),
                 lostPlayer.getName(),
                 score,
-                score > 1 ? "'s" : "");
+                score > 1 ? "s" : "");
 
     }
 
@@ -227,8 +228,9 @@ public class GameEntry {
         int argRows = 4;
         int argColumns = 4;
 
-        System.out.println(
-                GameEntry.RED + "\nMake sure you're calling from the right folder: tictoc" + GameEntry.RESET);
+        // System.out.println(
+        // GameEntry.RED + "\nMake sure you're calling from the right folder: tictoc" +
+        // GameEntry.RESET);
 
         if (GameEntry.isValidArgs(args)) {
             argRows = Integer.parseInt(args[0]);

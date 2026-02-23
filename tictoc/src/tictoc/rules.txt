@@ -1,17 +1,21 @@
 Rules ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - This is a two player game,
-- This game consists of two symbols: 'x' & 'o'.
-- On every turn each player will choose any one of the sym
-  -to place it inside any one of the boxes on the board.
+- This game consists of TWO SYMBOLS: 'x' & 'o'.
+- At the beginning of the game, the game will display you the GAME-BOARD. 
+- On every turn each player would have to choose any ONE of the SYMBOL(S)
+  to place it inside any ONE of the BOX(ES) ON THE BOARD.
 
-- Example: x <Enter>, in the next line: 12 <Enter>
-Where:
+- Example:
+    symbol: x <Enter>, 
+    (in the next line) ID: 12 <Enter>
+  Where:
     - 'x' : The chosen symbol.
     - '12' : The chose boxID.
-- For every xox match, appropriate player will get a point.
-- Only rows, columns will be considerd for points, no diagonals.
+
+- For every "XOX" match, appropriate player will get a point.
+- Diagonals will not be considerd for points, only ROWS & COLUMNS.
 
 - Finally player with more points or score will win the game!
 
-Rules end ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+End ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -53,12 +53,12 @@ public class GameLoopHelper {
 
     }
 
-    public final void updateBoxSymbol(BoardBox box, String symbol, int boxId, Player playerObj) {
+    public final void updateBoxSymbol(BoardBox box, String newSymbol, int boxId, Player playerObj) {
 
         System.out.printf("\n%s chose box-%d to place %s\n\n", playerObj.getName(),
-                boxId, symbol);
+                boxId, newSymbol);
 
-        box.setBoxSymbol(symbol, playerObj.getColor());
+        box.setBoxSymbol(newSymbol, playerObj.getColor());
 
     }
 
