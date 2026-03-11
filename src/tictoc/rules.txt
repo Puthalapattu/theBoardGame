@@ -2,16 +2,15 @@ Rules ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - This is a two player game,
 - This game consists of TWO SYMBOLS: 'x' & 'o'.
-- At the beginning of the game, the game will display you the GAME-BOARD. 
-- On every turn each player would have to choose any ONE of the SYMBOL(S)
+- On start, the game will display you the GAME-BOARD.
+- During run time pass args <n m> where n == m, and n, m <= 8, to customize the BOARD size.
+- Players has to enter input on every turn.
+- On each turn, each player would have to choose any ONE of the SYMBOL(S).
   to place it inside any ONE of the BOX(ES) ON THE BOARD.
 
 - Example:
     symbol: x <Enter>, 
-    (in the next line) ID: 12 <Enter>
-  Where:
-    - 'x' : The chosen symbol.
-    - '12' : The chose boxID.
+    ID: 12 <Enter> 
 
 - For every "XOX" match, appropriate player will get a point.
 - Diagonals will not be considerd for points, only ROWS & COLUMNS.

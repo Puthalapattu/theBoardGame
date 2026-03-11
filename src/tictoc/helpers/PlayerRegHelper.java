@@ -15,11 +15,22 @@ public class PlayerRegHelper {
 
     }
 
-    public final String readPlayerName(Scanner input) {
+    public final String readPlayerName(Scanner input, int id) {
         String playerName = "";
 
         try {
-            playerName = input.nextLine().toUpperCase();
+
+            while (true) {
+                System.out.printf("Name of Player-%d: ",  id);
+                playerName = input.nextLine().toUpperCase();
+
+                if (playerName.length() == 1) {
+                    System.out.println("Given name isn't valid, name length should be > 1");
+                
+                } else {
+                    break;
+                }
+            }
 
         } catch (InputMismatchException e) {
             System.out.println("\nPlayer name can only be a String, try again\n");

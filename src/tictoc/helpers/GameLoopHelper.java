@@ -29,24 +29,24 @@ public class GameLoopHelper {
 
     }
 
-    public final int readBoxId(Scanner input, int rowSize, int columnSize) {
+    public final int readBoxId(Scanner input, int boardSize) {
         int id;
         while (true) {
             System.out.print("Enter the choosen box ID: ");
             try {
                 id = Integer.parseInt(input.nextLine());
 
-                if (id <= (rowSize * columnSize) && id > 0)
+                if (id <= (boardSize) && id > 0)
                     return id;
 
                 System.out.printf("\nInvalid box id, should be <=%d and >=1, Please try again\n\n",
-                        (rowSize * columnSize));
+                        (boardSize));
 
             } catch (NumberFormatException e) {
-                System.out.println("\nNope... Box id is always a number, try again\n");
+                System.out.println("\nNope... Box id is always a number, Try again\n");
 
             } catch (Exception e) {
-                System.out.println("Error occured: " + e);
+                System.out.println("Unknown error occured, Try again");
 
             }
         }
@@ -81,3 +81,5 @@ public class GameLoopHelper {
 
     }
 }
+
+
